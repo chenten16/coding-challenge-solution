@@ -1,7 +1,10 @@
 import { createApp } from "vue";
-
+require("./bootstrap");
+import { createPinia } from 'pinia'
 import App from "./App.vue";
 
-createApp(App).mount("#app");
+const pinia = createPinia()
+const app = createApp(App)
 
-require("./bootstrap");
+app.use(pinia)
+app.mount('#app')

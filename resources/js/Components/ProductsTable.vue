@@ -23,13 +23,14 @@
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Img
+                            <tr v-for="product in products">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    <img :src="`/storage/${product.image}`" class="h-12" alt="" srcset="">
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Product 1 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">description
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{product.name}}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{product.description}}
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">$69</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${{product.price}}</td>
 
                             </tr>
 
@@ -42,5 +43,14 @@
     </div>
 </template>
 <script setup>
+import { get } from '../Utils/api';
+import { useProducts } from '../Stores/products';
+import { storeToRefs } from 'pinia'
+
+const productsStore = useProducts()
+const { products } = storeToRefs(productsStore)
+
+const allProducts = await get('/api/products')
+productsStore.mutate({ key: 'products', value: allProducts })
 
 </script>
