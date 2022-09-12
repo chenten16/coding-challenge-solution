@@ -7,6 +7,7 @@ use App\Repository\ProductRepositoryInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 class ProductRepository  implements ProductRepositoryInterface
 {
@@ -37,8 +38,7 @@ class ProductRepository  implements ProductRepositoryInterface
     public function upload(UploadedFile $file): string
     {
         $filename = uniqid() . '.' . $file->extension();
-        $file->storeAs('public/uploads', $filename);
-        return 'uploads/' . $filename;
+        return Storage::disk('public')->putFileAs(null, $file, $filename);
     }
     public function all(array $columns = ['*'], array $relations = [], bool $isQuery = false)
     {
