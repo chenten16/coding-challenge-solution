@@ -7,6 +7,7 @@
                         <h3 class="text-2xl">Add product</h3>
                         <span class="text-xl cursor-pointer" @click="$emit('update:open', false)">x</span>
                     </div>
+                    <alert v-show="Object.keys(errors).length>0" class="my-5" :errors="errors" />
                     <div class="mt-4">
                         <form ref="form" @submit="onSubmit" id="productForm" action="#" class="w-[500px]" method="POST">
                             <div class="mb-5">
@@ -52,7 +53,11 @@
                                 class="inline-flex items-center px-4 py-2  rounded-md shadow-sm text-sm font-medium text-indigo-600  focus:outline-none focus:ring-2 focus:ring-offset-2 border border-indigo-600">
                                 Cancel
                             </button>
-                            <button form="productForm"
+                            <button v-if="isSubmitting" form="productForm" disabled
+                                class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                Save
+                            </button>
+                            <button v-else form="productForm"
                                 class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                                 Save
                             </button>
@@ -65,10 +70,11 @@
     </div>
 </template>
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useProducts } from '../Stores/products';
 import { storeToRefs } from 'pinia'
 import { post } from '../Utils/api';
+import Alert from '../Components/Alert.vue';
 
 const emit = defineEmits(["update"]);
 const productsStore = useProducts()
@@ -86,20 +92,37 @@ const price = ref(0)
 const file = ref(null)
 const form = ref(null)
 const selected = ref(null)
+const isSubmitting = ref(false)
+const errors = ref([])
 const onFileChange = (e) => {
     const files = e.target.files || e.dataTransfer.files;
     file.value = files[0]
 }
 const onSubmit = (e) => {
     e.preventDefault()
-        const formData = new FormData(form.value)
-        for (const name of selected.value) {
-            const catId = categories.value.find(x => x.name === name)?.id
-            formData.append('categories[]', catId);
-        }
-        post('/api/products/create', formData).then(product => {
-            products.value.unshift(product)
-        })
+    isSubmitting.value = true
+    const formData = new FormData(form.value)
+
+    // for (const name of selected.value) {
+    //     const catId = categories.value.find(x => x.name === name)?.id
+    //     formData.append('categories[]', catId);
+    // }
+
+    post('/api/products/create', formData).then(product => {
+        products.value.unshift(product)
+    }).finally(() => {
+        isSubmitting.value = false
+    }).catch(error => {
+        errors.value = error.response.data.errors
+    })
 }
+watch(() => props.open, () => {
+    name.value = ''
+    description.value = ''
+    price.value = 0
+    file.value = null
+    selected.value = null
+    form.value.reset()
+})
 </script>
   
