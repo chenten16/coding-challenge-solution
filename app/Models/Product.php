@@ -8,8 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class Product extends Model
 {
     use HasFactory;
+    protected $fillable = ['image', 'name', 'description', 'price'];
     public function categories()
     {
-        return $this->belongstoMany('App\Models\Category');
+        return $this->belongstoMany('App\Models\Category')->withTimestamps();
     }
 }
