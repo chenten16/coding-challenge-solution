@@ -14,9 +14,19 @@ class ProductController extends Controller
     {
         $this->productRepository = $productRepository;
     }
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json($this->productRepository->all(), 200);
+        $sortDirection = $request->has('sort') ? $request->query('sort') : '';
+        $category = $request->has('category') ? $request->query('category') : '';
+
+        $query = $this->productRepository->all(['*'],  [], true);
+        if (!empty($category))
+            $query = $this->productRepository->filterByCategory($query, $category);
+        if (!empty($sortDirection))
+            $query = $this->productRepository->sort($query, 'price', $sortDirection);
+
+        $products = $query->get();
+        return response()->json($products, 200);
     }
     public function store(StoreProductRequest $request)
     {

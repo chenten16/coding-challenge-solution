@@ -53,4 +53,8 @@ const { products } = storeToRefs(productsStore)
 const allProducts = await get('/api/products')
 productsStore.mutate({ key: 'products', value: allProducts })
 
+const allCategories = await get('/api/categories')
+
+productsStore.mutate({ key: 'categories', value: allCategories })
+
 </script>
